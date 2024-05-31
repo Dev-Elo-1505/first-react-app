@@ -1,14 +1,12 @@
-import ListGroup from "./components/ListGRoup";
-
+import { Alert } from "./components/Alert";
 function App() {
-  let items = [
-    "Biotechnology",
-    "Computer Science",
-    "Accounting",
-    "Microbiology",
-    "Architecture",
-  ];
-  return <div><ListGroup items={items} heading='Programs' /></div>
+  return (
+    <div>
+      <Alert>
+        This is an alert component.
+      </Alert>
+    </div>
+  )
 }
 
 export default App;
