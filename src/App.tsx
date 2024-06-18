@@ -3,7 +3,8 @@
 // import { ExpenseFilter } from "./expense-tracker/components/ExpenseFilter";
 // import categories from "./expense-tracker/categories";
 // import ExpenseForm from "./expense-tracker/components/ExpenseForm";
-import axios, { AxiosError, CanceledError } from "axios";
+import { AxiosError } from "axios";
+import apiClient, { CanceledError } from "./services/api-client";
 import { useEffect, useState } from "react";
 // import { useEffect, useState } from "react";
 // import { ProductList } from "./components/ProductList";
@@ -20,8 +21,8 @@ function App() {
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
-    axios
-      .get<User[]>("https://jsonplaceholder.typicode.com/users")
+    apiClient
+      .get<User[]>("/users")
       .then((res) => {
         setUsers(res.data);
         setLoading(false);
@@ -68,7 +69,7 @@ function App() {
 const deleteUser = (user: User) => {
   const originalUsers = [...users]
   setUsers(users.filter(u => u.id !== user.id));
-  axios.delete('https://jsonplaceholder.typicode.com/users' + user.id)
+  apiClient.delete('/users' + user.id)
   .catch(err => {
     setError(err.message);
     setUsers(originalUsers);
@@ -79,11 +80,23 @@ const addUser = ()=> {
   const newUser = {id: 0, name: 'Addisi Joy'};
   setUsers([newUser, ...users]);
 
-  axios.post('https://jsonplaceholder.typicode.com/users', newUser)
+  apiClient.post('/users', newUser)
   .then(({data: savedUser}) => setUsers([savedUser,...users]))
   .catch(err => {
     setError(err.message);
     setUsers(originalUser);
+  })
+}
+
+const updateUser = (user: User)=> {
+  const originalUser = [...users];
+  const updatedUser = {...user, name: user.name + '!'};
+  setUsers(users.map(u => u.id === user.id ? updatedUser : u))
+
+  apiClient.patch('/users/' + user.id, updateUser)
+  .catch(err => {
+    setError(err.message);
+    setUsers(originalUser)
   })
 }
   return (
@@ -96,7 +109,7 @@ const addUser = ()=> {
           <li key={user.id} className="list-group-item d-flex justify-content-between">
             {user.name}
             <div>
-              <button className="btn btn-outline-secondary mx-2">Update</button>
+              <button className="btn btn-outline-secondary mx-2" onClick={()=> updateUser(user)}>Update</button>
               <button className="btn btn-outline-danger" onClick={()=> deleteUser(user)}>Delete</button>
             </div>
           </li>
