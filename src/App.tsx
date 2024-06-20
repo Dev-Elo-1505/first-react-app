@@ -4,30 +4,14 @@
 // import categories from "./expense-tracker/categories";
 // import ExpenseForm from "./expense-tracker/components/ExpenseForm";
 
-import { CanceledError } from "./services/api-client";
-import { useEffect, useState } from "react";
+
 import userService, { User } from "./services/user-service";
+import useUsers from "./hooks/useUsers";
 // import { useEffect, useState } from "react";
 // import { ProductList } from "./components/ProductList";
 
 function App() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [error, setError] = useState("");
-  const [isLoading, setLoading] = useState(false);
-  useEffect(() => {
-    setLoading(true);
-    const {request, cancel} = userService.getAll<User>();
-      request.then((res) => {
-        setUsers(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (err instanceof CanceledError) return;
-        setError(err.message);
-        setLoading(false);
-      });
-    return () => cancel();
-  }, []);
+  const { users, error, isLoading, setUsers, setError } = useUsers();
   // const [selectedCategory, setSelectedCategory] = useState("");
   // const [expenses, setExpenses] = useState([
   //   { id: 1, description: "aaa", amount: 10, category: "Utilities" },
@@ -73,7 +57,9 @@ function App() {
     const newUser = { id: 0, name: "Addisi Joy" };
     setUsers([newUser, ...users]);
 
-    userService.create(newUser).then(({ data: savedUser }) => setUsers([savedUser, ...users]))
+    userService
+      .create(newUser)
+      .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
       .catch((err) => {
         setError(err.message);
         setUsers(originalUser);
